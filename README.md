@@ -18,8 +18,10 @@ The goal of this project is to make student housing search easier, more trustwor
 
 ## Tech Stack
 - Frontend: React
-- Backend: Node.js + Express
-- Database: MongoDB 
+- Backend: ASP.NET Core (C#)
+- Database: SQLite
+- Version Control: GitHub
+- Project Management: Jira
 
 ## Project Management Approach
 This project follows the Scrum methodology.
@@ -63,3 +65,15 @@ Each team member works on her own branch and merges completed work into `main` t
 
 ## Course Context
 This project is being developed as part of our Project Management course and focuses on applying Agile practices, teamwork, planning, estimation, and iterative development.
+
+## Sprint 1 Features
+The following features are planned for Sprint 1:
+- Student Registration
+- Landlord Registration
+- User Login
+- Create Listing
+- View Listings
+- Browse Listings
+- Search Listings
+- View Listing Details
+- Approve Listings (Admin)
