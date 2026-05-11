@@ -1,0 +1,99 @@
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: white;
+  border-bottom: 1px solid var(--color-border);
+  height: 64px;
+}
+
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.link {
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  transition: var(--transition);
+}
+.link:hover { color: var(--color-primary); background: #f0fdf4; }
+.link.active { color: var(--color-primary); font-weight: 600; }
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.favBtn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: var(--color-text-muted);
+  transition: var(--transition);
+}
+.favBtn:hover { background: #fef2f2; color: #dc2626; }
+
+.badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 16px;
+  height: 16px;
+  background: #dc2626;
+  color: white;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+}
+
+.userArea {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.userName {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-primary);
+}
