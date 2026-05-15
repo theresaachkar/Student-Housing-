@@ -1,22 +1,69 @@
+from passlib.context import CryptContext
+
 from database import Base, SessionLocal, engine
 from models import Listing, User
 
 Base.metadata.create_all(bind=engine)
 
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 db = SessionLocal()
 
-# Keep users, reset listings only
+# Reset listings only
 db.query(Listing).delete()
 db.commit()
 
+# Seed users with hashed passwords if none exist yet
 if db.query(User).count() == 0:
     users = [
-        User(name="Theresa Al Achkar", email="admin@lu.edu", role="admin", status="active", join_date="2026-03-20"),
-        User(name="Celine Al Dassouki", email="student@lu.edu", role="student", status="active", join_date="2026-03-22"),
-        User(name="Pamela Kneyzeh", email="landlord@lu.edu", role="landlord", status="active", join_date="2026-03-25"),
-        User(name="Agnes Rahal", email="agnes@lu.edu", role="landlord", status="inactive", join_date="2026-03-28"),
+        User(
+            name="Theresa Al Achkar",
+            email="admin@lu.edu",
+            password=pwd_context.hash("Admin@123"),
+            role="admin",
+            status="active",
+            join_date="2026-03-20",
+        ),
+        User(
+            name="Celine Al Dassouki",
+            email="student@lu.edu",
+            password=pwd_context.hash("Student@123"),
+            role="student",
+            status="active",
+            join_date="2026-03-22",
+        ),
+        User(
+            name="Pamela Kneyzeh",
+            email="landlord@lu.edu",
+            password=pwd_context.hash("Landlord@123"),
+            role="landlord",
+            status="active",
+            join_date="2026-03-25",
+        ),
+        User(
+            name="Agnes Rahal",
+            email="agnes@lu.edu",
+            password=pwd_context.hash("Landlord@123"),
+            role="landlord",
+            status="inactive",
+            join_date="2026-03-28",
+        ),
     ]
     db.add_all(users)
+else:
+    # If users already exist but have no password (old seed), update them
+    updates = {
+        "admin@lu.edu": "Admin@123",
+        "student@lu.edu": "Student@123",
+        "landlord@lu.edu": "Landlord@123",
+        "agnes@lu.edu": "Landlord@123",
+    }
+    for email, plain_pw in updates.items():
+        user = db.query(User).filter(User.email == email).first()
+        if user and not user.password:
+            user.password = pwd_context.hash(plain_pw)
+
+db.commit()
 
 listings = [
     Listing(
@@ -225,4 +272,9 @@ db.add_all(listings)
 db.commit()
 db.close()
 
-print("Lebanon student housing database seeded successfully.")
+print("Database seeded successfully.")
+print("─" * 40)
+print("Test credentials:")
+print("  Admin:    admin@lu.edu     /  Admin@123")
+print("  Student:  student@lu.edu   /  Student@123")
+print("  Landlord: landlord@lu.edu  /  Landlord@123")
