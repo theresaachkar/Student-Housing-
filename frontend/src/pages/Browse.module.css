@@ -1,0 +1,169 @@
+.page { padding: 40px 0 80px; }
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.filterToggle { display: none; }
+
+.searchRow { margin-bottom: 28px; }
+
+.searchBox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: white;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 10px 16px;
+  max-width: 560px;
+  transition: var(--transition);
+}
+.searchBox:focus-within { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(27,67,50,0.08); }
+.searchBox input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text);
+  background: transparent;
+}
+
+.layout { display: flex; gap: 28px; align-items: flex-start; }
+
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  background: white;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  padding: 20px;
+  position: sticky;
+  top: 84px;
+}
+
+.sidebarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.sidebarHeader h2 {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.filterGroup { margin-bottom: 24px; }
+
+.filterLabel {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+}
+
+.range {
+  width: 100%;
+  accent-color: var(--color-primary);
+}
+
+.rangeLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+}
+
+.typeButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.typeBtn {
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1.5px solid var(--color-border);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+  background: white;
+}
+.typeBtn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.typeBtn.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+.main { flex: 1; min-width: 0; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.empty {
+  text-align: center;
+  padding: 80px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  color: var(--color-text-muted);
+  font-size: 15px;
+}
+
+@media (max-width: 768px) {
+  .filterToggle { display: flex; }
+  .sidebar { display: none; }
+  .sidebar.open {
+    display: block;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 200;
+    border-radius: 0;
+    overflow-y: auto;
+    width: 100%;
+  }
+}
+/* ── Add these to your existing Browse.module.css ── */
+
+/* Min / max price inputs side by side */
+.priceInputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.priceField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.priceField span {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.priceSep {
+  color: var(--color-text-muted);
+  font-size: 14px;
+  margin-top: 18px;
+  flex-shrink: 0;
+}
