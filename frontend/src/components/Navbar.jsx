@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom"
-import { Heart, LogIn, LogOut, User, Home, ShieldCheck } from "lucide-react"
+import { Heart, LogIn, LogOut, User, Home, ShieldCheck, PlusCircle, Building2 } from "lucide-react"
 import { useAuth } from "../context/AuthContext"
 import { useFavorites } from "../context/FavoritesContext"
 import styles from "./Navbar.module.css"
@@ -27,6 +27,20 @@ export default function Navbar() {
           <Link to="/browse" className={`${styles.link} ${isActive("/browse") ? styles.active : ""}`}>
             Browse
           </Link>
+
+          {user?.role === "landlord" && (
+            <Link to="/my-listings" className={`${styles.link} ${isActive("/my-listings") ? styles.active : ""}`}>
+              <Building2 size={14} style={{ verticalAlign: "middle", marginRight: 4 }} />
+              My Listings
+            </Link>
+          )}
+
+          {user?.role === "landlord" && (
+            <Link to="/create-listing" className={`${styles.link} ${isActive("/create-listing") ? styles.active : ""}`}>
+              <PlusCircle size={14} style={{ verticalAlign: "middle", marginRight: 4 }} />
+              List Property
+            </Link>
+          )}
 
           {user?.role === "admin" && (
             <Link to="/admin" className={`${styles.link} ${isActive("/admin") ? styles.active : ""}`}>

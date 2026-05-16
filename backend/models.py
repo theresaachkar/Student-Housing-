@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, Text
+from sqlalchemy import Boolean, Column, Integer, String, Float, Text
 
 from database import Base
 
@@ -40,3 +40,7 @@ class Listing(Base):
     status = Column(String, default="pending")
     admin_reason = Column(Text, default="")
     last_admin_action = Column(String, default="")
+    photos = Column(Text, default="")
+    date_posted = Column(String, default="")
+    inquiries = Column(Integer, default=0)
+    is_available = Column(Boolean, default=True)

@@ -31,6 +31,12 @@ function normalizeListing(listing) {
     status: listing.status,
     adminReason: listing.admin_reason,
     lastAdminAction: listing.last_admin_action,
+    photos: listing.photos
+      ? listing.photos.split(",").filter(Boolean).map((f) => `http://127.0.0.1:8000/uploads/${f}`)
+      : [],
+    datePosted: listing.date_posted || "",
+    inquiries: listing.inquiries ?? 0,
+    isAvailable: listing.is_available !== false,
   }
 }
 
@@ -140,6 +146,37 @@ export function ListingsProvider({ children }) {
     }
   }
 
+  const toggleAvailability = async (id) => {
+    const updated = await api.toggleAvailability(id)
+    const normalized = normalizeListing(updated)
+    setListings((prev) => prev.map((l) => (l.id === id ? normalized : l)))
+    return normalized
+  }
+
+  const updateListing = async (id, formData) => {
+    const updated = await api.updateListing(id, formData)
+    const normalized = normalizeListing(updated)
+    setListings((prev) => prev.map((l) => (l.id === id ? normalized : l)))
+    return normalized
+  }
+
+  const deleteLandlordListing = async (id) => {
+    const confirmed = window.confirm("Are you sure? This cannot be undone.")
+    if (!confirmed) return false
+
+    const updated = await api.softDeleteListing(id)
+    const normalized = normalizeListing(updated)
+    setListings((prev) => prev.map((l) => (l.id === id ? normalized : l)))
+    return true
+  }
+
+  const addListing = async (formData) => {
+    const created = await api.createListing(formData)
+    const normalized = normalizeListing(created)
+    setListings((prev) => [...prev, normalized])
+    return normalized
+  }
+
   const approvedListings = listings.filter((listing) => listing.status === "approved")
   const pendingListings = listings.filter((listing) => listing.status === "pending")
   const rejectedListings = listings.filter((listing) => listing.status === "rejected")
@@ -152,6 +189,10 @@ export function ListingsProvider({ children }) {
         approvedListings,
         pendingListings,
         rejectedListings,
+        addListing,
+        updateListing,
+        toggleAvailability,
+        deleteLandlordListing,
         approveListing,
         rejectListing,
         removeListing,

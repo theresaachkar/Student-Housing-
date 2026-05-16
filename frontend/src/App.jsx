@@ -13,6 +13,16 @@ import Favorites from "./pages/Favorites"
 import Auth from "./pages/Auth"
 import Admin from "./pages/Admin"
 import AdminListingDetails from "./pages/AdminListingDetails"
+import CreateListing from "./pages/CreateListing"
+import MyListings from "./pages/MyListings"
+import EditListing from "./pages/EditListing"
+
+function ProtectedLandlordRoute({ children }) {
+  const { user } = useAuth()
+  if (!user) return <Navigate to="/auth" replace />
+  if (user.role !== "landlord") return <Navigate to="/" replace />
+  return children
+}
 
 function ProtectedAdminRoute({ children }) {
   const { user } = useAuth()
@@ -49,6 +59,33 @@ export default function App() {
                 <Route path="/listing/:id" element={<ListingDetail />} />
                 <Route path="/favorites" element={<Favorites />} />
                 <Route path="/auth" element={<Auth />} />
+
+                <Route
+                  path="/create-listing"
+                  element={
+                    <ProtectedLandlordRoute>
+                      <CreateListing />
+                    </ProtectedLandlordRoute>
+                  }
+                />
+
+                <Route
+                  path="/my-listings"
+                  element={
+                    <ProtectedLandlordRoute>
+                      <MyListings />
+                    </ProtectedLandlordRoute>
+                  }
+                />
+
+                <Route
+                  path="/edit-listing/:id"
+                  element={
+                    <ProtectedLandlordRoute>
+                      <EditListing />
+                    </ProtectedLandlordRoute>
+                  }
+                />
 
                 <Route
                   path="/admin"

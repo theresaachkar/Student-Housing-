@@ -1,11 +1,11 @@
 const API_URL = "http://127.0.0.1:8000"
 
 export async function apiRequest(path, options = {}) {
+  const isFormData = options.body instanceof FormData
   const response = await fetch(`${API_URL}${path}`, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {}),
-    },
+    headers: isFormData
+      ? {}
+      : { "Content-Type": "application/json", ...(options.headers || {}) },
     ...options,
   })
 
@@ -57,5 +57,27 @@ export const api = {
     apiRequest(`/api/listings/${id}`, {
       method: "DELETE",
       body: JSON.stringify({ reason }),
+    }),
+
+  createListing: (formData) =>
+    apiRequest("/api/listings", {
+      method: "POST",
+      body: formData,
+    }),
+
+  updateListing: (id, formData) =>
+    apiRequest(`/api/listings/${id}`, {
+      method: "PATCH",
+      body: formData,
+    }),
+
+  toggleAvailability: (id) =>
+    apiRequest(`/api/listings/${id}/toggle-availability`, {
+      method: "PATCH",
+    }),
+
+  softDeleteListing: (id) =>
+    apiRequest(`/api/listings/${id}/soft-delete`, {
+      method: "PATCH",
     }),
 }

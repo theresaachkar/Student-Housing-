@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -37,6 +39,10 @@ class ListingBase(BaseModel):
     status: str
     admin_reason: str
     last_admin_action: str
+    photos: Optional[str] = ""
+    date_posted: Optional[str] = ""
+    inquiries: int = 0
+    is_available: bool = True
 
 
 class ListingOut(ListingBase):
