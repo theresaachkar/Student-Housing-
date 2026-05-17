@@ -1,9 +1,11 @@
 from pydantic import BaseModel
+from typing import Optional
 
 
 class UserBase(BaseModel):
     name: str
     email: str
+    phone: Optional[str] = ""   # ← new
     role: str
     status: str
     join_date: str
@@ -14,6 +16,11 @@ class UserOut(UserBase):
 
     class Config:
         from_attributes = True
+
+
+class UpdateProfileRequest(BaseModel):   # ← new
+    name: str
+    phone: Optional[str] = ""
 
 
 class ListingBase(BaseModel):
@@ -52,3 +59,10 @@ class ReasonRequest(BaseModel):
 
 class LoginRequest(BaseModel):
     email: str
+    password: str
+
+
+class RegisterRequest(BaseModel):
+    name: str
+    email: str
+    password: str

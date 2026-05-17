@@ -1,163 +1,95 @@
 import { createContext, useContext, useEffect, useState } from "react"
-import { api } from "../api"
 
 const ListingsContext = createContext(null)
 
-function normalizeListing(listing) {
+const API = "http://localhost:8000"
+
+// Transform backend flat structure → shape the components expect
+function transformListing(listing) {
   return {
-    id: listing.id,
-    title: listing.title,
-    type: listing.type,
-    price: listing.price,
-    location: listing.location,
-    distance: listing.distance,
-    beds: listing.beds,
-    baths: listing.baths,
-    sqm: listing.sqm,
-    available: listing.available,
-    amenities: listing.amenities
-      ? listing.amenities.split(",").map((item) => item.trim())
-      : [],
-    description: listing.description,
-    rating: listing.rating,
-    reviews: listing.reviews,
-    color: listing.color,
+    ...listing,
+    // Parse amenities from "WiFi,Kitchen,Laundry" → ["WiFi", "Kitchen", "Laundry"]
+    amenities: typeof listing.amenities === "string"
+      ? listing.amenities.split(",").map((a) => a.trim()).filter(Boolean)
+      : listing.amenities,
+    // Nest landlord fields into an object
     landlord: {
       name: listing.landlord_name,
       email: listing.landlord_email,
       phone: listing.landlord_phone,
     },
+    // Map snake_case → camelCase for admin notes
+    adminReason: listing.admin_reason || "",
+    // submittedBy shown in admin table
     submittedBy: listing.landlord_name,
-    status: listing.status,
-    adminReason: listing.admin_reason,
-    lastAdminAction: listing.last_admin_action,
   }
-}
-
-function buildWhatsAppLink(phone, message) {
-  const cleanPhone = phone.replace(/[^\d]/g, "")
-  return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`
 }
 
 export function ListingsProvider({ children }) {
   const [listings, setListings] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
 
-  const loadListings = async () => {
-    try {
-      setLoading(true)
-      const data = await api.getListings()
-      setListings(data.map(normalizeListing))
-    } catch (error) {
-      console.error(error)
-    } finally {
-      setLoading(false)
-    }
+  const fetchListings = () => {
+    return fetch(`${API}/api/listings`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch listings")
+        return res.json()
+      })
+      .then((data) => {
+        setListings(data.map(transformListing))
+      })
+      .catch(() => {
+        setError("Could not load listings. Make sure the backend is running.")
+      })
+      .finally(() => setLoading(false))
   }
 
   useEffect(() => {
-    loadListings()
+    fetchListings()
   }, [])
 
+  // Derived lists
+  const approvedListings = listings.filter((l) => l.status === "approved")
+  const pendingListings = listings.filter((l) => l.status === "pending")
+  const rejectedListings = listings.filter((l) => l.status === "rejected")
+
+  // Admin actions — call API then refresh listings
   const approveListing = async (id) => {
-    const currentListing = listings.find((item) => item.id === id)
-
-    if (!currentListing) return
-
-    if (currentListing.status === "approved") {
-      alert("This listing is already approved.")
-      return
-    }
-
-    const updated = await api.approveListing(id)
-    const normalized = normalizeListing(updated)
-
-    setListings((prev) =>
-      prev.map((listing) =>
-        listing.id === id ? normalized : listing
-      )
-    )
-
-    const message = `Hello ${normalized.landlord.name}, your listing "${normalized.title}" has been approved and is now active on LU Student Housing.`
-
-    window.open(
-      buildWhatsAppLink(normalized.landlord.phone, message),
-      "_blank"
-    )
+    await fetch(`${API}/api/listings/${id}/approve`, { method: "PATCH" })
+    await fetchListings()
   }
 
   const rejectListing = async (id, reason) => {
-    const currentListing = listings.find((item) => item.id === id)
-
-    if (!currentListing) return
-
-    if (currentListing.status === "rejected") {
-      alert("This listing is already rejected.")
-      return
-    }
-
-    const updated = await api.rejectListing(id, reason)
-    const normalized = normalizeListing(updated)
-
-    setListings((prev) =>
-      prev.map((listing) =>
-        listing.id === id ? normalized : listing
-      )
-    )
-
-    const message = `Hello ${normalized.landlord.name}, your listing "${normalized.title}" was rejected for this reason: ${reason}`
-
-    window.open(
-      buildWhatsAppLink(normalized.landlord.phone, message),
-      "_blank"
-    )
+    await fetch(`${API}/api/listings/${id}/reject`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reason }),
+    })
+    await fetchListings()
   }
 
   const removeListing = async (id, reason) => {
-    const listing = listings.find((item) => item.id === id)
-
-    if (!listing) return
-
-    const confirmed = window.confirm(
-      "Are you sure you want to remove this listing?"
-    )
-
-    if (!confirmed) return
-
-    await api.removeListing(id, reason)
-
-    setListings((prev) =>
-      prev.filter((item) => item.id !== id)
-    )
-
-    if (listing?.landlord?.phone) {
-      const message = `Hello ${listing.landlord.name}, your listing "${listing.title}" was removed from LU Student Housing for this reason: ${reason}`
-
-      window.open(
-        buildWhatsAppLink(listing.landlord.phone, message),
-        "_blank"
-      )
-    }
+    await fetch(`${API}/api/listings/${id}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reason }),
+    })
+    await fetchListings()
   }
 
-  const approvedListings = listings.filter((listing) => listing.status === "approved")
-  const pendingListings = listings.filter((listing) => listing.status === "pending")
-  const rejectedListings = listings.filter((listing) => listing.status === "rejected")
-
   return (
-    <ListingsContext.Provider
-      value={{
-        listings,
-        loading,
-        approvedListings,
-        pendingListings,
-        rejectedListings,
-        approveListing,
-        rejectListing,
-        removeListing,
-        reloadListings: loadListings,
-      }}
-    >
+    <ListingsContext.Provider value={{
+      listings,
+      loading,
+      error,
+      approvedListings,
+      pendingListings,
+      rejectedListings,
+      approveListing,
+      rejectListing,
+      removeListing,
+    }}>
       {children}
     </ListingsContext.Provider>
   )

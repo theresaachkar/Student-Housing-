@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom"
-import { Heart, LogIn, LogOut, User, Home, ShieldCheck } from "lucide-react"
+import { Heart, LogIn, LogOut, User, Home } from "lucide-react"
 import { useAuth } from "../context/AuthContext"
 import { useFavorites } from "../context/FavoritesContext"
 import styles from "./Navbar.module.css"
@@ -23,17 +23,9 @@ export default function Navbar() {
           <Link to="/" className={`${styles.link} ${isActive("/") ? styles.active : ""}`}>
             Home
           </Link>
-
           <Link to="/browse" className={`${styles.link} ${isActive("/browse") ? styles.active : ""}`}>
             Browse
           </Link>
-
-          {user?.role === "admin" && (
-            <Link to="/admin" className={`${styles.link} ${isActive("/admin") ? styles.active : ""}`}>
-              <ShieldCheck size={14} style={{ verticalAlign: "middle", marginRight: 4 }} />
-              Admin
-            </Link>
-          )}
         </div>
 
         <div className={styles.actions}>
@@ -46,12 +38,13 @@ export default function Navbar() {
 
           {user ? (
             <div className={styles.userArea}>
-              <span className={styles.userName}>
-                <User size={16} /> {user.name} ({user.role})
-              </span>
-
-              <button onClick={logout} className="btn btn-ghost" style={{ padding: "8px 14px" }}>
-                <LogOut size={16} /> Sign out
+              {/* Clicking the name goes to profile */}
+              <Link to="/profile" className={styles.userNameLink}>
+                <User size={15} />
+                {user.name}
+              </Link>
+              <button onClick={logout} className="btn btn-ghost" style={{ padding: "7px 12px" }}>
+                <LogOut size={15} /> Sign out
               </button>
             </div>
           ) : (
