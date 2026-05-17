@@ -139,3 +139,31 @@
     width: 100%;
   }
 }
+/* ── Add these to your existing Browse.module.css ── */
+
+/* Min / max price inputs side by side */
+.priceInputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.priceField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.priceField span {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.priceSep {
+  color: var(--color-text-muted);
+  font-size: 14px;
+  margin-top: 18px;
+  flex-shrink: 0;
+}

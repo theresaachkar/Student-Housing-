@@ -1,37 +1,62 @@
-import { useState, useEffect } from "react"
+import { useState, useMemo } from "react"
 import { useSearchParams } from "react-router-dom"
 import { Search, SlidersHorizontal, X } from "lucide-react"
 import ListingCard from "../components/ListingCard"
-import { LISTING_TYPES, LOCATIONS } from "../data/mockListings"
 import { useListings } from "../context/ListingsContext"
 import styles from "./Browse.module.css"
 
+const LISTING_TYPES = ["All", "Studio", "Shared", "1BR Flat", "Dorm", "House Share", "En-suite"]
+const ROOMS_OPTIONS = ["Any", "1", "2", "3", "3+"]
+
 export default function Browse() {
   const [searchParams] = useSearchParams()
-  const [search, setSearch] = useState(searchParams.get("q") || "")
-  const [priceMax, setPriceMax] = useState(600)
+  const { approvedListings } = useListings()
+
+  const [search, setSearch] = useState(searchParams.get("search") || searchParams.get("q") || "")
+  const [priceMin, setPriceMin] = useState("")
+  const [priceMax, setPriceMax] = useState("")
   const [type, setType] = useState("All")
+  const [rooms, setRooms] = useState("Any")
   const [location, setLocation] = useState("All Locations")
   const [showFilters, setShowFilters] = useState(false)
-  const { approvedListings } = useListings()
+
+  // Derive unique locations from real backend data
+  const locations = useMemo(() => {
+    const unique = [...new Set(approvedListings.map((l) => l.location))]
+    return ["All Locations", ...unique.sort()]
+  }, [approvedListings])
 
   const filtered = approvedListings.filter((l) => {
     const matchSearch =
       search === "" ||
       l.title.toLowerCase().includes(search.toLowerCase()) ||
       l.location.toLowerCase().includes(search.toLowerCase())
-    const matchPrice = l.price <= priceMax
+
+    const matchPriceMin = priceMin === "" || l.price >= Number(priceMin)
+    const matchPriceMax = priceMax === "" || l.price <= Number(priceMax)
+
     const matchType = type === "All" || l.type === type
+
+    const matchRooms =
+      rooms === "Any" ||
+      (rooms === "3+" ? l.beds >= 3 : l.beds === Number(rooms))
+
     const matchLoc = location === "All Locations" || l.location === location
-    return matchSearch && matchPrice && matchType && matchLoc
+
+    return matchSearch && matchPriceMin && matchPriceMax && matchType && matchRooms && matchLoc
   })
 
   const resetFilters = () => {
     setSearch("")
-    setPriceMax(600)
+    setPriceMin("")
+    setPriceMax("")
     setType("All")
+    setRooms("Any")
     setLocation("All Locations")
   }
+
+  const hasActiveFilters =
+    search || priceMin || priceMax || type !== "All" || rooms !== "Any" || location !== "All Locations"
 
   return (
     <div className={styles.page}>
@@ -75,30 +100,65 @@ export default function Browse() {
           <aside className={`${styles.sidebar} ${showFilters ? styles.open : ""}`}>
             <div className={styles.sidebarHeader}>
               <h2>Filters</h2>
-              <button onClick={resetFilters} style={{ fontSize: "13px", color: "var(--color-accent)", fontWeight: 600 }}>
-                Reset all
-              </button>
+              {hasActiveFilters && (
+                <button
+                  onClick={resetFilters}
+                  style={{ fontSize: "13px", color: "var(--color-accent)", fontWeight: 600 }}
+                >
+                  Clear all
+                </button>
+              )}
             </div>
 
-            {/* Price */}
+            {/* Price range — min + max */}
             <div className={styles.filterGroup}>
-              <label className={styles.filterLabel}>Max price: <strong>${priceMax}/mo</strong></label>
-              <input
-                type="range"
-                min="100"
-                max="600"
-                step="10"
-                value={priceMax}
-                onChange={(e) => setPriceMax(Number(e.target.value))}
-                className={styles.range}
-              />
-              <div className={styles.rangeLabels}>
-                <span>$100</span>
-                <span>$600</span>
+              <label className={styles.filterLabel}>Price range ($/mo)</label>
+              <div className={styles.priceInputs}>
+                <div className={styles.priceField}>
+                  <span>Min</span>
+                  <input
+                    type="number"
+                    className="input"
+                    placeholder="0"
+                    min="0"
+                    value={priceMin}
+                    onChange={(e) => setPriceMin(e.target.value)}
+                    style={{ fontSize: "13px" }}
+                  />
+                </div>
+                <span className={styles.priceSep}>—</span>
+                <div className={styles.priceField}>
+                  <span>Max</span>
+                  <input
+                    type="number"
+                    className="input"
+                    placeholder="Any"
+                    min="0"
+                    value={priceMax}
+                    onChange={(e) => setPriceMax(e.target.value)}
+                    style={{ fontSize: "13px" }}
+                  />
+                </div>
               </div>
             </div>
 
-            {/* Type */}
+            {/* Number of rooms */}
+            <div className={styles.filterGroup}>
+              <label className={styles.filterLabel}>Number of rooms</label>
+              <div className={styles.typeButtons}>
+                {ROOMS_OPTIONS.map((r) => (
+                  <button
+                    key={r}
+                    className={`${styles.typeBtn} ${rooms === r ? styles.active : ""}`}
+                    onClick={() => setRooms(r)}
+                  >
+                    {r}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Listing type */}
             <div className={styles.filterGroup}>
               <label className={styles.filterLabel}>Type</label>
               <div className={styles.typeButtons}>
@@ -114,7 +174,7 @@ export default function Browse() {
               </div>
             </div>
 
-            {/* Location */}
+            {/* Location — derived from real data */}
             <div className={styles.filterGroup}>
               <label className={styles.filterLabel}>Location</label>
               <select
@@ -123,7 +183,9 @@ export default function Browse() {
                 className="input"
                 style={{ fontSize: "13px" }}
               >
-                {LOCATIONS.map((l) => <option key={l}>{l}</option>)}
+                {locations.map((l) => (
+                  <option key={l}>{l}</option>
+                ))}
               </select>
             </div>
           </aside>
@@ -132,13 +194,17 @@ export default function Browse() {
           <div className={styles.main}>
             {filtered.length > 0 ? (
               <div className={styles.grid}>
-                {filtered.map((l) => <ListingCard key={l.id} listing={l} />)}
+                {filtered.map((l) => (
+                  <ListingCard key={l.id} listing={l} />
+                ))}
               </div>
             ) : (
               <div className={styles.empty}>
                 <Search size={40} color="#d1d5db" />
                 <p>No listings match your filters.</p>
-                <button className="btn btn-outline" onClick={resetFilters}>Clear filters</button>
+                <button className="btn btn-outline" onClick={resetFilters}>
+                  Clear filters
+                </button>
               </div>
             )}
           </div>

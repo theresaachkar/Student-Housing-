@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   Bath,
   BedDouble,
+  Calendar,
   CheckCircle,
   Heart,
   Mail,
@@ -13,8 +14,8 @@ import {
   Star,
   X,
 } from "lucide-react"
-import { useListings } from "../context/ListingsContext"
 import { useFavorites } from "../context/FavoritesContext"
+import { useListings } from "../context/ListingsContext"
 import styles from "./ListingDetail.module.css"
 
 export default function ListingDetail() {
@@ -22,8 +23,12 @@ export default function ListingDetail() {
   const navigate = useNavigate()
   const { approvedListings, loading } = useListings()
   const { isFavorite, toggleFavorite } = useFavorites()
+
   const [contactOpen, setContactOpen] = useState(false)
   const [sent, setSent] = useState(false)
+  const [message, setMessage] = useState("")
+  const [moveInDate, setMoveInDate] = useState("")
+  const [messageError, setMessageError] = useState("")
 
   const listing = approvedListings.find((item) => item.id === Number(id))
 
@@ -50,16 +55,42 @@ export default function ListingDetail() {
     )
   }
 
-  const whatsappMessage = `Hello ${listing.landlord.name}, I am interested in your listing "${listing.title}" on LU Student Housing.`
-  const whatsappLink = `https://wa.me/${listing.landlord.phone.replace(
+  const defaultMessage = `Hello ${listing.landlord.name}, I am interested in your listing "${listing.title}" on LU Student Housing.`
+
+  const openContact = () => {
+    setMessage(defaultMessage)
+    setMoveInDate("")
+    setMessageError("")
+    setSent(false)
+    setContactOpen(true)
+  }
+
+  const buildWhatsAppUrl = () => {
+    let fullMessage = message.trim()
+
+    if (moveInDate) {
+      fullMessage += `\n\nPreferred move-in date: ${moveInDate}`
+    }
+
+    const phone = listing.landlord.phone.replace(/[^\d]/g, "")
+    return `https://wa.me/${phone}?text=${encodeURIComponent(fullMessage)}`
+  }
+
+  const handleSend = () => {
+    if (!message.trim()) {
+      setMessageError("Please enter a message before sending.")
+      return
+    }
+
+    setMessageError("")
+    setSent(true)
+    window.open(buildWhatsAppUrl(), "_blank")
+  }
+
+  const quickWhatsAppLink = `https://wa.me/${listing.landlord.phone.replace(
     /[^\d]/g,
     ""
-  )}?text=${encodeURIComponent(whatsappMessage)}`
-
-  const handleSendMessage = () => {
-    setSent(true)
-    window.open(whatsappLink, "_blank")
-  }
+  )}?text=${encodeURIComponent(defaultMessage)}`
 
   return (
     <main className={styles.page}>
@@ -71,15 +102,14 @@ export default function ListingDetail() {
 
         <div className={styles.layout}>
           <section className={styles.main}>
-            <div
-              className={styles.banner}
-              style={{ background: listing.color }}
-            >
+            <div className={styles.banner} style={{ background: listing.color }}>
               <div className={styles.bannerContent}>
                 <span className={`badge ${styles.typeBadge}`}>
                   {listing.type}
                 </span>
+
                 <h1 className={styles.title}>{listing.title}</h1>
+
                 <p className={styles.locationLine}>
                   <MapPin size={16} />
                   {listing.location} · {listing.distance}
@@ -90,20 +120,16 @@ export default function ListingDetail() {
             <div className={styles.body}>
               <div className={styles.statsRow}>
                 <span>
-                  <BedDouble size={17} />
-                  {listing.beds} bed
+                  <BedDouble size={17} /> {listing.beds} bed
                 </span>
                 <span>
-                  <Bath size={17} />
-                  {listing.baths} bath
+                  <Bath size={17} /> {listing.baths} bath
                 </span>
                 <span>
-                  <Ruler size={17} />
-                  {listing.sqm} sqm
+                  <Ruler size={17} /> {listing.sqm} sqm
                 </span>
                 <span>
-                  <Star size={17} />
-                  {listing.rating} ({listing.reviews} reviews)
+                  <Star size={17} /> {listing.rating} ({listing.reviews} reviews)
                 </span>
               </div>
 
@@ -146,9 +172,13 @@ export default function ListingDetail() {
 
               <button
                 className={`btn btn-primary ${styles.contactBtn}`}
-                onClick={() => setContactOpen(true)}
+                onClick={openContact}
                 disabled={!listing.isAvailable}
-                style={!listing.isAvailable ? { opacity: 0.4, cursor: "not-allowed" } : {}}
+                style={
+                  !listing.isAvailable
+                    ? { opacity: 0.4, cursor: "not-allowed" }
+                    : {}
+                }
               >
                 <Phone size={17} />
                 Contact Landlord
@@ -181,14 +211,14 @@ export default function ListingDetail() {
                 </a>
 
                 {listing.isAvailable ? (
-                  <a href={whatsappLink} target="_blank" rel="noreferrer">
+                  <a href={quickWhatsAppLink} target="_blank" rel="noreferrer">
                     <Phone size={15} />
                     WhatsApp
                   </a>
                 ) : (
-                  <span style={{ color: "#9ca3af", display: "flex", alignItems: "center", gap: 6, fontSize: 14 }}>
+                  <span className={styles.disabledContact}>
                     <Phone size={15} />
-                    WhatsApp (unavailable)
+                    WhatsApp unavailable
                   </span>
                 )}
               </div>
@@ -201,7 +231,7 @@ export default function ListingDetail() {
         <div className={styles.overlay}>
           <div className={styles.modal}>
             <div className={styles.modalHeader}>
-              <h2>Contact Landlord</h2>
+              <h2>Contact via WhatsApp</h2>
               <button onClick={() => setContactOpen(false)}>
                 <X size={20} />
               </button>
@@ -210,27 +240,88 @@ export default function ListingDetail() {
             {sent ? (
               <div className={styles.success}>
                 <CheckCircle size={42} />
-                <p>WhatsApp opened with your message.</p>
+                <p>
+                  WhatsApp opened! Continue the conversation with{" "}
+                  <strong>{listing.landlord.name}</strong> there.
+                </p>
+
+                <button
+                  className="btn btn-outline"
+                  style={{ marginTop: 12 }}
+                  onClick={() => setSent(false)}
+                >
+                  Edit & resend
+                </button>
               </div>
             ) : (
               <>
-                <p style={{ marginBottom: 14, color: "var(--color-text-muted)" }}>
-                  You will be redirected to WhatsApp to contact{" "}
-                  <strong>{listing.landlord.name}</strong>.
+                <p
+                  style={{
+                    marginBottom: 16,
+                    color: "var(--color-text-muted)",
+                    fontSize: 14,
+                  }}
+                >
+                  Your message will be sent to{" "}
+                  <strong>{listing.landlord.name}</strong> via WhatsApp.
                 </p>
 
-                <textarea
-                  className={`input ${styles.textarea}`}
-                  defaultValue={whatsappMessage}
-                  readOnly
-                />
+                <div className={styles.formField}>
+                  <label>
+                    Message <span style={{ color: "#dc2626" }}>*</span>
+                  </label>
+
+                  <textarea
+                    className={`input ${styles.textarea}`}
+                    value={message}
+                    onChange={(event) => {
+                      setMessage(event.target.value)
+                      setMessageError("")
+                    }}
+                    placeholder="Write your message to the landlord..."
+                    rows={5}
+                  />
+
+                  {messageError && (
+                    <p className={styles.fieldError}>{messageError}</p>
+                  )}
+                </div>
+
+                <div className={styles.formField}>
+                  <label>
+                    <Calendar size={14} />
+                    Preferred move-in date{" "}
+                    <span
+                      style={{
+                        color: "var(--color-text-muted)",
+                        fontWeight: 400,
+                      }}
+                    >
+                      (optional)
+                    </span>
+                  </label>
+
+                  <input
+                    type="date"
+                    className="input"
+                    value={moveInDate}
+                    onChange={(event) => setMoveInDate(event.target.value)}
+                    min={new Date().toISOString().split("T")[0]}
+                  />
+                </div>
 
                 <button
                   className="btn btn-primary"
-                  style={{ width: "100%", justifyContent: "center", marginTop: 16 }}
-                  onClick={handleSendMessage}
+                  style={{
+                    width: "100%",
+                    justifyContent: "center",
+                    marginTop: 8,
+                    padding: 12,
+                  }}
+                  onClick={handleSend}
                 >
-                  Send via WhatsApp
+                  <Phone size={16} />
+                  Open WhatsApp
                 </button>
               </>
             )}

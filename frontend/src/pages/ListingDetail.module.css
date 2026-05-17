@@ -12,6 +12,7 @@
   border: none;
   transition: var(--transition);
 }
+
 .back:hover { color: var(--color-primary); }
 
 .layout { display: flex; gap: 28px; align-items: flex-start; }
@@ -25,6 +26,7 @@
   align-items: flex-end;
   margin-bottom: 24px;
 }
+
 .bannerContent { padding: 24px; }
 
 .typeBadge {
@@ -68,9 +70,15 @@
   font-weight: 500;
   color: var(--color-text-muted);
 }
-.statsRow span { display: flex; align-items: center; gap: 6px; }
+
+.statsRow span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
 
 .section { margin-bottom: 28px; }
+
 .section h2 {
   font-family: var(--font-display);
   font-size: 18px;
@@ -78,9 +86,19 @@
   color: var(--color-primary);
   margin-bottom: 12px;
 }
-.section p { font-size: 15px; line-height: 1.7; color: var(--color-text-muted); }
 
-.amenityGrid { display: flex; flex-wrap: wrap; gap: 10px; }
+.section p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--color-text-muted);
+}
+
+.amenityGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .amenity {
   display: flex;
   align-items: center;
@@ -94,7 +112,6 @@
   font-weight: 500;
 }
 
-/* Sidebar */
 .sidebar {
   width: 300px;
   flex-shrink: 0;
@@ -113,10 +130,24 @@
   gap: 4px;
   margin-bottom: 20px;
 }
-.price strong { font-family: var(--font-display); font-size: 36px; color: var(--color-primary); }
-.price span { font-size: 15px; color: var(--color-text-muted); }
 
-.contactBtn { width: 100%; justify-content: center; margin-bottom: 10px; padding: 12px; }
+.price strong {
+  font-family: var(--font-display);
+  font-size: 36px;
+  color: var(--color-primary);
+}
+
+.price span {
+  font-size: 15px;
+  color: var(--color-text-muted);
+}
+
+.contactBtn {
+  width: 100%;
+  justify-content: center;
+  margin-bottom: 10px;
+  padding: 12px;
+}
 
 .unavailableNotice {
   background: #fef2f2;
@@ -129,10 +160,24 @@
   margin-bottom: 10px;
   text-align: center;
 }
-.favBtn { width: 100%; justify-content: center; padding: 12px; }
-.favActive { background: #fef2f2; color: #dc2626; border: 1.5px solid #fecaca; }
 
-.landlordCard { padding: 20px; text-align: center; }
+.favBtn {
+  width: 100%;
+  justify-content: center;
+  padding: 12px;
+}
+
+.favActive {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1.5px solid #fecaca;
+}
+
+.landlordCard {
+  padding: 20px;
+  text-align: center;
+}
+
 .landlordCard h3 {
   font-size: 13px;
   font-weight: 600;
@@ -156,9 +201,20 @@
   margin: 0 auto 10px;
   font-family: var(--font-display);
 }
-.landlordName { font-weight: 600; margin-bottom: 14px; }
-.landlordContact { display: flex; flex-direction: column; gap: 8px; }
-.landlordContact a {
+
+.landlordName {
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.landlordContact {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.landlordContact a,
+.disabledContact {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -167,9 +223,13 @@
   color: var(--color-primary);
   transition: var(--transition);
 }
+
 .landlordContact a:hover { text-decoration: underline; }
 
-/* Modal */
+.disabledContact {
+  color: #9ca3af;
+}
+
 .overlay {
   position: fixed;
   inset: 0;
@@ -196,11 +256,27 @@
   justify-content: space-between;
   margin-bottom: 20px;
 }
-.modalHeader h2 { font-family: var(--font-display); font-size: 20px; color: var(--color-primary); }
-.modalHeader button { color: var(--color-text-muted); cursor: pointer; border: none; background: none; }
+
+.modalHeader h2 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--color-primary);
+}
+
+.modalHeader button {
+  color: var(--color-text-muted);
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
 .modalHeader button:hover { color: var(--color-text); }
 
-.textarea { resize: vertical; min-height: 120px; }
+.textarea {
+  resize: vertical;
+  min-height: 110px;
+  line-height: 1.6;
+}
 
 .success {
   text-align: center;
@@ -211,4 +287,26 @@
   gap: 14px;
   font-size: 15px;
   color: var(--color-text-muted);
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.formField label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.fieldError {
+  font-size: 12px;
+  color: #dc2626;
+  margin-top: 2px;
 }
