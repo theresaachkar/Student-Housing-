@@ -138,9 +138,17 @@ export default function ListingDetail() {
                 <span>/month</span>
               </div>
 
+              {!listing.isAvailable && (
+                <div className={styles.unavailableNotice}>
+                  This property is currently unavailable.
+                </div>
+              )}
+
               <button
                 className={`btn btn-primary ${styles.contactBtn}`}
                 onClick={() => setContactOpen(true)}
+                disabled={!listing.isAvailable}
+                style={!listing.isAvailable ? { opacity: 0.4, cursor: "not-allowed" } : {}}
               >
                 <Phone size={17} />
                 Contact Landlord
@@ -172,10 +180,17 @@ export default function ListingDetail() {
                   {listing.landlord.email}
                 </a>
 
-                <a href={whatsappLink} target="_blank" rel="noreferrer">
-                  <Phone size={15} />
-                  WhatsApp
-                </a>
+                {listing.isAvailable ? (
+                  <a href={whatsappLink} target="_blank" rel="noreferrer">
+                    <Phone size={15} />
+                    WhatsApp
+                  </a>
+                ) : (
+                  <span style={{ color: "#9ca3af", display: "flex", alignItems: "center", gap: 6, fontSize: 14 }}>
+                    <Phone size={15} />
+                    WhatsApp (unavailable)
+                  </span>
+                )}
               </div>
             </div>
           </aside>

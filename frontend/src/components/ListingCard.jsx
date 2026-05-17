@@ -12,6 +12,9 @@ export default function ListingCard({ listing }) {
       {/* Color banner / image placeholder */}
       <div className={styles.banner} style={{ background: listing.color }}>
         <span className={`badge ${styles.typeBadge}`}>{listing.type}</span>
+        {!listing.isAvailable && (
+          <span className={styles.unavailableBadge}>Unavailable</span>
+        )}
         <button
           className={`${styles.favBtn} ${fav ? styles.active : ""}`}
           onClick={(e) => { e.preventDefault(); toggleFavorite(listing.id) }}

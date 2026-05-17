@@ -117,6 +117,18 @@
 .price span { font-size: 15px; color: var(--color-text-muted); }
 
 .contactBtn { width: 100%; justify-content: center; margin-bottom: 10px; padding: 12px; }
+
+.unavailableNotice {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 10px;
+  text-align: center;
+}
 .favBtn { width: 100%; justify-content: center; padding: 12px; }
 .favActive { background: #fef2f2; color: #dc2626; border: 1.5px solid #fecaca; }
 
